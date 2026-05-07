@@ -61,6 +61,11 @@ S3_PREFIX=agrozakaz-test
 S3_ACCESS_KEY_ID=...
 S3_SECRET_ACCESS_KEY=...
 
+# Те же endpoint и bucket, но доступные на клиенте — нужны браузеру
+# чтобы строить URL картинок сразу после загрузки в админке.
+NEXT_PUBLIC_S3_ENDPOINT=https://s3.twcstorage.ru
+NEXT_PUBLIC_S3_BUCKET=ansara-main-baket
+
 AUTH_SECRET=...                # openssl rand -base64 32
 AUTH_TRUST_HOST=true
 

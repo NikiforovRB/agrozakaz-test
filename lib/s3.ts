@@ -42,9 +42,17 @@ export function buildKey(folder: string, filename: string): string {
   return `${prefix}/${safeFolder}/${timestamp}-${random}-${safeName}`;
 }
 
+const publicEndpoint =
+  process.env.NEXT_PUBLIC_S3_ENDPOINT ??
+  process.env.S3_ENDPOINT ??
+  "https://s3.twcstorage.ru";
+const publicBucket =
+  process.env.NEXT_PUBLIC_S3_BUCKET ?? process.env.S3_BUCKET ?? "";
+
 export function publicUrl(key: string | null | undefined): string | null {
   if (!key) return null;
-  return `${endpoint}/${bucket}/${key}`;
+  if (!publicBucket) return null;
+  return `${publicEndpoint}/${publicBucket}/${key}`;
 }
 
 export async function uploadObject(params: {
