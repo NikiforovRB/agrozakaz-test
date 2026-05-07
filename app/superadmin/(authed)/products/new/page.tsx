@@ -28,14 +28,21 @@ function buildOptions(rows: Row[]): { id: string; name: string; depth: number }[
 }
 
 export default async function NewProductPage() {
-  const cats = await prisma.category.findMany({
-    select: { id: true, name: true, parentId: true },
-    orderBy: [{ order: "asc" }, { name: "asc" }],
-  });
+  const [cats, warehouses] = await Promise.all([
+    prisma.category.findMany({
+      select: { id: true, name: true, parentId: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+    }),
+    prisma.warehouse.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+    }),
+  ]);
   return (
     <div className="space-y-4">
       <PageHeader title="Новый товар" />
-      <ProductForm categories={buildOptions(cats)} />
+      <ProductForm categories={buildOptions(cats)} warehouses={warehouses} />
     </div>
   );
 }

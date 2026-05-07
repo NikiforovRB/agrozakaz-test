@@ -14,10 +14,12 @@ import {
 } from "@/app/superadmin/actions/products";
 
 export type CategoryOption = { id: string; name: string; depth: number };
+export type WarehouseOption = { id: string; name: string };
 
 export function ProductForm({
   initial,
   categories,
+  warehouses,
 }: {
   initial?: {
     id: string;
@@ -25,11 +27,13 @@ export function ProductForm({
     name: string;
     description: string | null;
     priceRub: number;
-    inStock: boolean;
+    stockCount: number;
     imageKey: string | null;
+    warehouseId: string | null;
     categoryIds: string[];
   };
   categories: CategoryOption[];
+  warehouses: WarehouseOption[];
 }) {
   const router = useRouter();
   const [state, formAction] = useFormState<ProductFormState, FormData>(
@@ -49,7 +53,7 @@ export function ProductForm({
       {initial && <input type="hidden" name="id" value={initial.id} />}
       <input type="hidden" name="imageKey" value={imageKey ?? ""} />
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="space-y-1.5">
           <Label htmlFor="sku">Артикул</Label>
           <Input id="sku" name="sku" required defaultValue={initial?.sku} />
@@ -65,11 +69,39 @@ export function ProductForm({
             defaultValue={initial?.priceRub ?? 0}
           />
         </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="stockCount">Сколько штук в наличии</Label>
+          <Input
+            id="stockCount"
+            name="stockCount"
+            type="number"
+            min={0}
+            required
+            defaultValue={initial?.stockCount ?? 0}
+          />
+        </div>
       </div>
 
       <div className="space-y-1.5">
         <Label htmlFor="name">Название</Label>
         <Input id="name" name="name" required defaultValue={initial?.name} />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="warehouseId">Склад</Label>
+        <select
+          id="warehouseId"
+          name="warehouseId"
+          defaultValue={initial?.warehouseId ?? ""}
+          className="flex h-10 w-full rounded-md border border-border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand"
+        >
+          <option value="">— не указан —</option>
+          {warehouses.map((w) => (
+            <option key={w.id} value={w.id}>
+              {w.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="space-y-1.5">
@@ -115,19 +147,6 @@ export function ProductForm({
         onChange={setImageKey}
         label="Изображение товара"
       />
-
-      <div className="flex items-center gap-2">
-        <input
-          id="inStock"
-          name="inStock"
-          type="checkbox"
-          defaultChecked={initial?.inStock ?? true}
-          className="h-4 w-4 rounded border-border text-brand focus:ring-brand"
-        />
-        <Label htmlFor="inStock" className="cursor-pointer">
-          В наличии
-        </Label>
-      </div>
 
       {state.error && (
         <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">

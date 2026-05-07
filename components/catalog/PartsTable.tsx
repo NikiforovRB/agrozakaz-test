@@ -11,7 +11,7 @@ export type PartRow = {
   sku: string;
   name: string;
   priceRub: number;
-  inStock: boolean;
+  stockCount: number;
   quantity?: number;
 };
 
@@ -85,7 +85,7 @@ export function PartsTable({
               </div>
               <div className="text-foreground">
                 <div className="line-clamp-2">{row.name}</div>
-                {!row.inStock && (
+                {row.stockCount === 0 && (
                   <div className="mt-0.5 text-[10px] font-medium uppercase text-orange-600">
                     под заказ
                   </div>

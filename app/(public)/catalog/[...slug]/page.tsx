@@ -64,6 +64,7 @@ export default async function CatalogCategoryPage({
           },
         ],
       },
+      include: { warehouse: { select: { name: true } } },
       take: 12,
       orderBy: { createdAt: "desc" },
     }),
@@ -88,7 +89,8 @@ export default async function CatalogCategoryPage({
   const slugPath = chain.map((c) => c.slug).join("/");
 
   return (
-    <div className="container-page space-y-6 py-5">
+    <>
+      <div className="container-page space-y-6 py-5">
       <Breadcrumbs items={breadcrumbItems} />
       <h1 className="text-xl font-bold lg:text-2xl">{category.name}</h1>
       {category.description && (
@@ -132,7 +134,7 @@ export default async function CatalogCategoryPage({
               sku: m.product!.sku,
               name: m.product!.name,
               priceRub: m.product!.priceRub,
-              inStock: m.product!.inStock,
+              stockCount: m.product!.stockCount,
             }))}
         />
       )}
@@ -145,13 +147,15 @@ export default async function CatalogCategoryPage({
             sku: p.sku,
             name: p.name,
             priceRub: p.priceRub,
-            inStock: p.inStock,
+            stockCount: p.stockCount,
             imageKey: p.imageKey,
+            warehouseName: p.warehouse?.name ?? null,
           }))}
         />
       )}
+      </div>
 
       <ContactSection />
-    </div>
+    </>
   );
 }

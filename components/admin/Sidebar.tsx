@@ -7,6 +7,7 @@ import {
   FolderTree,
   ImageIcon,
   Package,
+  Warehouse as WarehouseIcon,
   Users,
   LogOut,
   ExternalLink,
@@ -19,6 +20,7 @@ const ITEMS = [
   { href: "/superadmin/categories", label: "Категории", icon: FolderTree },
   { href: "/superadmin/schemas", label: "Схемы", icon: ImageIcon },
   { href: "/superadmin/products", label: "Товары", icon: Package },
+  { href: "/superadmin/warehouses", label: "Склады", icon: WarehouseIcon },
   { href: "/superadmin/users", label: "Пользователи", icon: Users },
 ];
 

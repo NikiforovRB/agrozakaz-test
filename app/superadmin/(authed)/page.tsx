@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
-import { FolderTree, ImageIcon, Package, Users } from "lucide-react";
+import { FolderTree, ImageIcon, Package, Users, Warehouse as WarehouseIcon } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [categories, schemas, products, users] = await Promise.all([
+  const [categories, schemas, products, warehouses, users] = await Promise.all([
     prisma.category.count(),
     prisma.schema.count(),
     prisma.product.count(),
+    prisma.warehouse.count(),
     prisma.user.count(),
   ]);
 
@@ -32,6 +33,12 @@ export default async function AdminDashboardPage() {
       icon: Package,
     },
     {
+      label: "Складов",
+      count: warehouses,
+      href: "/superadmin/warehouses",
+      icon: WarehouseIcon,
+    },
+    {
       label: "Пользователей",
       count: users,
       href: "/superadmin/users",
@@ -47,7 +54,7 @@ export default async function AdminDashboardPage() {
           Сводка по содержимому каталога
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {cards.map((c) => {
           const Icon = c.icon;
           return (

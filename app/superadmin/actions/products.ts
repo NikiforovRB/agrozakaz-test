@@ -12,8 +12,9 @@ const productSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional().nullable(),
   priceRub: z.coerce.number().int().min(0),
-  inStock: z.coerce.boolean().default(true),
+  stockCount: z.coerce.number().int().min(0).default(0),
   imageKey: z.string().optional().nullable(),
+  warehouseId: z.string().optional().nullable(),
   categoryIds: z.array(z.string()).optional(),
 });
 
@@ -32,8 +33,9 @@ export async function upsertProductAction(
     name: raw.name,
     description: raw.description,
     priceRub: raw.priceRub,
-    inStock: raw.inStock === "on" || raw.inStock === "true",
+    stockCount: raw.stockCount,
     imageKey: raw.imageKey || null,
+    warehouseId: raw.warehouseId || null,
     categoryIds,
   });
   if (!parsed.success) {
@@ -49,8 +51,9 @@ export async function upsertProductAction(
           name: data.name,
           description: data.description ?? null,
           priceRub: data.priceRub,
-          inStock: data.inStock,
+          stockCount: data.stockCount,
           imageKey: data.imageKey ?? null,
+          warehouseId: data.warehouseId,
           categories: {
             set: (data.categoryIds ?? []).map((id) => ({ id })),
           },
@@ -63,8 +66,9 @@ export async function upsertProductAction(
           name: data.name,
           description: data.description ?? null,
           priceRub: data.priceRub,
-          inStock: data.inStock,
+          stockCount: data.stockCount,
           imageKey: data.imageKey ?? null,
+          warehouseId: data.warehouseId,
           categories: {
             connect: (data.categoryIds ?? []).map((id) => ({ id })),
           },

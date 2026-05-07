@@ -1,17 +1,24 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ShoppingCart, Check } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ShoppingCart,
+  Check,
+  MapPin,
+} from "lucide-react";
 import { publicUrl } from "@/lib/s3";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, pluralizeRu } from "@/lib/utils";
 
 export type CarouselProduct = {
   id: string;
   sku: string;
   name: string;
   priceRub: number;
-  inStock: boolean;
+  stockCount: number;
   imageKey: string | null;
+  warehouseName: string | null;
 };
 
 export function ProductCarousel({
@@ -27,7 +34,7 @@ export function ProductCarousel({
   const scrollBy = (direction: number) => {
     const node = scrollerRef.current;
     if (!node) return;
-    const cardWidth = 220;
+    const cardWidth = 230;
     node.scrollBy({ left: direction * cardWidth * 2, behavior: "smooth" });
   };
 
@@ -71,10 +78,11 @@ export function ProductCarousel({
         {products.map((p) => {
           const url = publicUrl(p.imageKey);
           const isAdded = added[p.id];
+          const inStock = p.stockCount > 0;
           return (
             <article
               key={p.id}
-              className="group flex w-[210px] shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-white shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
+              className="group flex w-[220px] shrink-0 snap-start flex-col overflow-hidden rounded-lg border bg-white shadow-card transition-all hover:-translate-y-0.5 hover:shadow-card-hover"
             >
               <div className="relative aspect-square w-full bg-muted">
                 {url ? (
@@ -90,13 +98,31 @@ export function ProductCarousel({
                   </div>
                 )}
               </div>
-              <div className="flex flex-1 flex-col gap-2 p-3">
+              <div className="flex flex-1 flex-col gap-1.5 p-3">
                 <div className="font-mono text-[10px] uppercase text-muted-foreground">
                   {p.sku}
                 </div>
                 <h3 className="line-clamp-2 min-h-[34px] text-[13px] font-medium leading-snug text-foreground">
                   {p.name}
                 </h3>
+                {inStock ? (
+                  <div className="inline-flex items-center gap-1 text-[11px] font-medium text-green-700">
+                    <Check className="h-3.5 w-3.5" />
+                    {p.stockCount}{" "}
+                    {pluralizeRu(p.stockCount, ["штука", "штуки", "штук"])} в
+                    наличии
+                  </div>
+                ) : (
+                  <div className="text-[11px] font-medium text-orange-600">
+                    Под заказ
+                  </div>
+                )}
+                {p.warehouseName && (
+                  <div className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    Склад: {p.warehouseName}
+                  </div>
+                )}
                 <div className="mt-auto flex items-center justify-between gap-2 pt-2">
                   <div className="text-base font-bold tabular-nums text-foreground">
                     {formatPrice(p.priceRub)}

@@ -134,11 +134,28 @@ const ZIMARI_NODES = [
   "Тяги и крепления",
 ];
 
+const WAREHOUSES = [
+  { name: "Склад Москва", city: "Москва", address: "ул. Горбунова, 12" },
+  { name: "Склад Санкт-Петербург", city: "Санкт-Петербург", address: "пр. Энергетиков, 47" },
+  { name: "Склад Краснодар", city: "Краснодар", address: "ул. Уральская, 100" },
+];
+
 async function seedCatalog() {
   await prisma.partMarker.deleteMany();
   await prisma.schema.deleteMany();
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
+  await prisma.warehouse.deleteMany();
+
+  const warehouses = await Promise.all(
+    WAREHOUSES.map((w, i) =>
+      prisma.warehouse.create({
+        data: { ...w, order: i },
+      }),
+    ),
+  );
+  console.log(`✓ Created ${warehouses.length} warehouses`);
+  const pickWarehouse = (i: number) => warehouses[i % warehouses.length].id;
 
   for (const top of TOP_CATEGORIES) {
     const topImageKey = `${S3_PREFIX}/categories/${top.slug}.svg`;
@@ -217,7 +234,7 @@ async function seedCatalog() {
             { sku: "ZA-007", name: "Втулка резиновая амортизатора", price: 690 },
           ];
           const products = await Promise.all(
-            productData.map(async (p) => {
+            productData.map(async (p, idx) => {
               const imageKey = `${S3_PREFIX}/products/${p.sku.toLowerCase()}.svg`;
               await uploadIfMissing(imageKey, partSvg(p.sku), "image/svg+xml");
               return prisma.product.create({
@@ -225,8 +242,9 @@ async function seedCatalog() {
                   sku: p.sku,
                   name: p.name,
                   priceRub: p.price,
-                  inStock: true,
+                  stockCount: [12, 8, 25, 240, 540, 6, 18][idx] ?? 10,
                   imageKey,
+                  warehouseId: pickWarehouse(idx),
                   categories: { connect: [{ id: nodeCat.id }, { id: model.id }] },
                 },
               });
@@ -276,7 +294,8 @@ async function seedCatalog() {
         { sku: "AC-104", name: "Втулка распорная 25x40x60", price: 1480 },
         { sku: "AC-105", name: "Звездочка цепи привода Z-21", price: 3450 },
       ];
-      for (const p of extraProducts) {
+      for (let idx = 0; idx < extraProducts.length; idx++) {
+        const p = extraProducts[idx];
         const imageKey = `${S3_PREFIX}/products/${p.sku.toLowerCase()}.svg`;
         await uploadIfMissing(imageKey, partSvg(p.sku), "image/svg+xml");
         await prisma.product.create({
@@ -284,8 +303,9 @@ async function seedCatalog() {
             sku: p.sku,
             name: p.name,
             priceRub: p.price,
-            inStock: true,
+            stockCount: [22, 90, 150, 14, 4][idx] ?? 10,
             imageKey,
+            warehouseId: pickWarehouse(idx + 7),
             categories: { connect: { id: model.id } },
           },
         });

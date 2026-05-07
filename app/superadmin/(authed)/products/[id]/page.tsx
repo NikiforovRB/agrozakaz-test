@@ -33,13 +33,18 @@ export default async function EditProductPage({
 }: {
   params: { id: string };
 }) {
-  const [product, cats] = await Promise.all([
+  const [product, cats, warehouses] = await Promise.all([
     prisma.product.findUnique({
       where: { id: params.id },
       include: { categories: { select: { id: true } } },
     }),
     prisma.category.findMany({
       select: { id: true, name: true, parentId: true },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+    }),
+    prisma.warehouse.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
       orderBy: [{ order: "asc" }, { name: "asc" }],
     }),
   ]);
@@ -54,11 +59,13 @@ export default async function EditProductPage({
           name: product.name,
           description: product.description,
           priceRub: product.priceRub,
-          inStock: product.inStock,
+          stockCount: product.stockCount,
           imageKey: product.imageKey,
+          warehouseId: product.warehouseId,
           categoryIds: product.categories.map((c) => c.id),
         }}
         categories={buildOptions(cats)}
+        warehouses={warehouses}
       />
     </div>
   );

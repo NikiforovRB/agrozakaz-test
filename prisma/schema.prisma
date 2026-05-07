@@ -87,12 +87,29 @@ model Product {
   name        String
   description String?
   priceRub    Int
-  inStock     Boolean  @default(true)
+  stockCount  Int      @default(0)
   imageKey    String?
+  warehouseId String?
+  warehouse   Warehouse?   @relation(fields: [warehouseId], references: [id], onDelete: SetNull)
   categories  Category[]   @relation("CategoryProducts")
   markers     PartMarker[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  @@index([warehouseId])
   @@map("products")
+}
+
+model Warehouse {
+  id        String    @id @default(cuid())
+  name      String
+  city      String?
+  address   String?
+  isActive  Boolean   @default(true)
+  order     Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("warehouses")
 }

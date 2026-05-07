@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
   const products = await prisma.product.findMany({
+    include: { warehouse: { select: { name: true, city: true } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,12 +24,13 @@ export default async function ProductsPage() {
         createLabel="Добавить товар"
       />
       <div className="overflow-hidden rounded-lg border bg-white">
-        <div className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(220px,2fr)_120px_100px_140px] items-center gap-3 border-b bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+        <div className="grid grid-cols-[60px_minmax(110px,1fr)_minmax(220px,2fr)_minmax(120px,1fr)_110px_90px_140px] items-center gap-3 border-b bg-muted px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
           <div></div>
           <div>Артикул</div>
           <div>Название</div>
+          <div>Склад</div>
           <div className="text-right">Цена</div>
-          <div className="text-center">Статус</div>
+          <div className="text-center">В наличии</div>
           <div className="text-right">Действия</div>
         </div>
         {products.length === 0 ? (
@@ -41,7 +43,7 @@ export default async function ProductsPage() {
             return (
               <div
                 key={p.id}
-                className="grid grid-cols-[60px_minmax(120px,1fr)_minmax(220px,2fr)_120px_100px_140px] items-center gap-3 border-b px-3 py-2"
+                className="grid grid-cols-[60px_minmax(110px,1fr)_minmax(220px,2fr)_minmax(120px,1fr)_110px_90px_140px] items-center gap-3 border-b px-3 py-2"
               >
                 <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded border bg-muted">
                   {url ? (
@@ -54,13 +56,16 @@ export default async function ProductsPage() {
                   {p.sku}
                 </div>
                 <div className="text-sm">{p.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  {p.warehouse?.name ?? "—"}
+                </div>
                 <div className="text-right text-sm font-semibold tabular-nums">
                   {formatPrice(p.priceRub)}
                 </div>
                 <div className="text-center">
-                  {p.inStock ? (
+                  {p.stockCount > 0 ? (
                     <span className="inline-flex rounded-full bg-green-50 px-2 py-0.5 text-[10px] font-medium text-green-700">
-                      в наличии
+                      {p.stockCount} шт.
                     </span>
                   ) : (
                     <span className="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[10px] font-medium text-orange-700">
